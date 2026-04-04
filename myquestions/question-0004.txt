@@ -1,0 +1,47 @@
+Problema (Sklearn): Selección de features por varianza y evaluación comparativa
+
+Implementa una función en Python llamada:
+
+    seleccion_features_varianza(X, y, threshold, test_size, random_state)
+
+Descripción:
+Debes filtrar features de baja varianza con VarianceThreshold y comparar el
+rendimiento de un DecisionTreeClassifier antes y después del filtrado.
+
+Pasos:
+1) Dividir datos con:
+   train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
+2) Crear VarianceThreshold(threshold=threshold).
+   fit SOLO en X_train. transform en X_train y X_test.
+   Si tras el filtrado quedan 0 features, repetir con threshold=0.0
+   (crear un nuevo VarianceThreshold(threshold=0.0), fit en X_train, transform ambos).
+3) Modelo con TODOS los features originales:
+   a) Crear DecisionTreeClassifier(random_state=random_state).
+   b) fit(X_train, y_train), predict(X_test).
+   c) Calcular accuracy_score(y_test, pred).
+4) Modelo con features filtrados:
+   a) Crear DecisionTreeClassifier(random_state=random_state).
+   b) fit(X_train_filtrado, y_train), predict(X_test_filtrado).
+   c) Calcular accuracy_score(y_test, pred).
+5) Retornar un dict con exactamente estas 6 claves:
+   - "n_features_original": int — número de columnas de X original
+   - "n_features_filtrado": int — número de columnas tras VarianceThreshold
+   - "features_eliminados": int — (n_features_original - n_features_filtrado)
+   - "acc_original": float, redondeado a 6 decimales
+   - "acc_filtrado": float, redondeado a 6 decimales
+   - "diferencia_acc": float, (acc_filtrado - acc_original), redondeado a 6 decimales
+
+Parámetros:
+- X: numpy.ndarray de shape (n_samples, n_features)
+- y: numpy.ndarray de shape (n_samples,) con clases 0/1
+- threshold: float (>= 0)
+- test_size: float (0 < test_size < 1)
+- random_state: int
+
+Salida:
+- dict con las 6 claves descritas arriba.
+
+Restricciones:
+- Usar solo numpy y sklearn.
+- No usar cross-validation.
+- fit de VarianceThreshold solo en X_train.

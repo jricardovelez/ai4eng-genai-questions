@@ -1,0 +1,44 @@
+Problema (Sklearn): Evaluar el impacto del escalado en KNeighborsClassifier
+
+Implementa una función en Python llamada:
+
+    evaluar_impacto_escalado_knn(X, y, n_neighbors, test_size, random_state)
+
+Descripción:
+Debes comparar el rendimiento de un KNeighborsClassifier entrenado con y sin
+escalado de features, para demostrar el impacto del StandardScaler.
+
+Pasos:
+1) Dividir datos con:
+   train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
+2) SIN escalado:
+   a) Crear KNeighborsClassifier(n_neighbors=n_neighbors).
+   b) fit(X_train, y_train), predict(X_test).
+   c) Calcular accuracy_score(y_test, pred) y f1_score(y_test, pred, average="weighted", zero_division=0).
+3) CON escalado:
+   a) Crear StandardScaler(). fit en X_train. transform en X_train y X_test.
+   b) Crear KNeighborsClassifier(n_neighbors=n_neighbors).
+   c) fit(X_train_scaled, y_train), predict(X_test_scaled).
+   d) Calcular accuracy_score y f1_score (mismos parámetros que paso 2c).
+4) Retornar un dict con exactamente estas 6 claves:
+   - "acc_sin_escalar": float, redondeado a 6 decimales
+   - "f1_sin_escalar": float, redondeado a 6 decimales
+   - "acc_con_escalar": float, redondeado a 6 decimales
+   - "f1_con_escalar": float, redondeado a 6 decimales
+   - "mejora_accuracy": float, (acc_con_escalar - acc_sin_escalar), redondeado a 6 decimales
+   - "mejora_f1": float, (f1_con_escalar - f1_sin_escalar), redondeado a 6 decimales
+
+Parámetros:
+- X: numpy.ndarray de shape (n_samples, n_features)
+- y: numpy.ndarray de shape (n_samples,) con clases enteras
+- n_neighbors: int (>= 1)
+- test_size: float (0 < test_size < 1)
+- random_state: int
+
+Salida:
+- dict con las 6 claves descritas arriba.
+
+Restricciones:
+- No usar Pipeline.
+- Escalar manualmente con StandardScaler (fit solo en train).
+- Usar solo numpy y sklearn.

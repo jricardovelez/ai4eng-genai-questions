@@ -1,0 +1,46 @@
+Problema (Pandas): Cálculo de métricas RFM por cliente
+
+Implementa una función en Python llamada:
+
+    calcular_rfm(df, customer_col, date_col, amount_col, ref_date)
+
+Descripción:
+Recibes un DataFrame de transacciones y una fecha de referencia.
+Debes calcular las métricas RFM (Recency, Frequency, Monetary) para cada cliente.
+
+Pasos:
+1) Convertir df[date_col] a datetime con pd.to_datetime(errors="coerce").
+2) Convertir df[amount_col] a numérico con pd.to_numeric(errors="coerce").
+3) Eliminar toda fila donde date_col sea NaT, amount_col sea NaN o customer_col sea NaN.
+4) Convertir ref_date a datetime con pd.to_datetime(ref_date).
+5) Agrupar por customer_col y calcular:
+   - recency_days: (ref_date - max(date_col del cliente)).days → int
+   - frequency: conteo de filas del cliente → int
+   - monetary: suma de amount_col del cliente → float, redondeado a 2 decimales
+6) Asignar scores de 1 a 4 para cada métrica usando pd.qcut(q=4, duplicates="drop"):
+   - recency_score: pd.qcut(recency_days, q=4, labels=[4,3,2,1], duplicates="drop")
+     (menor recency = mejor score = 4)
+   - frequency_score: pd.qcut(frequency, q=4, labels=[1,2,3,4], duplicates="drop")
+   - monetary_score: pd.qcut(monetary, q=4, labels=[1,2,3,4], duplicates="drop")
+   Después de cada qcut, convertir el resultado a float, rellenar NaN con 1.0,
+   y luego convertir a int.
+7) Calcular rfm_score = recency_score + frequency_score + monetary_score (int).
+8) Construir un DataFrame con columnas exactas:
+   ["customer", "recency_days", "frequency", "monetary", "rfm_score"]
+   donde "customer" contiene los valores de customer_col.
+9) Ordenar por rfm_score descendente; en caso de empate, por customer ascendente.
+10) Resetear índice (drop=True) y retornar el DataFrame.
+
+Parámetros:
+- df: pandas.DataFrame
+- customer_col: str
+- date_col: str
+- amount_col: str
+- ref_date: str o datetime
+
+Salida:
+- pandas.DataFrame con columnas ["customer", "recency_days", "frequency", "monetary", "rfm_score"]
+
+Restricciones:
+- Usar solo pandas y numpy.
+- Usar siempre duplicates="drop" en pd.qcut para evitar errores con valores repetidos.

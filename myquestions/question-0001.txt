@@ -1,0 +1,46 @@
+Problema (Pandas): Detección de anomalías en serie temporal con rolling z-score
+
+Implementa una función en Python llamada:
+
+    detectar_anomalias_rolling(df, date_col, value_col, window, threshold)
+
+Descripción:
+Recibes un DataFrame con una columna de fechas y una columna de valores numéricos.
+Debes detectar puntos anómalos calculando el z-score con media y desviación estándar
+móviles (rolling).
+
+Pasos:
+1) Convertir df[date_col] a datetime con pd.to_datetime(errors="coerce").
+2) Convertir df[value_col] a numérico con pd.to_numeric(errors="coerce").
+3) Eliminar toda fila donde date_col sea NaT o value_col sea NaN.
+4) Ordenar por date_col ascendente y resetear el índice (drop=True).
+5) Si el DataFrame resultante tiene 0 filas, retornar inmediatamente:
+   {"total_rows": 0, "total_anomalies": 0, "anomaly_pct": 0.0,
+    "anomaly_indices": [], "mean_abs_zscore": 0.0}
+6) Calcular:
+   rolling_mean = df[value_col].rolling(window=window, min_periods=window).mean()
+   rolling_std  = df[value_col].rolling(window=window, min_periods=window).std()
+   z_score = (df[value_col] - rolling_mean) / rolling_std
+7) Reemplazar en z_score cualquier NaN o Inf (±) por 0.0.
+8) Marcar como anomalía toda fila donde abs(z_score) > threshold (estricto).
+9) Retornar un dict con:
+   - "total_rows": int — filas en el DataFrame limpio (paso 4)
+   - "total_anomalies": int — cantidad de anomalías
+   - "anomaly_pct": float — (total_anomalies / total_rows) * 100, redondeado a 6 decimales
+   - "anomaly_indices": list[int] — índices del DataFrame limpio donde hay anomalía, orden ascendente
+   - "mean_abs_zscore": float — promedio de abs(z_score) solo sobre filas anómalas,
+     redondeado a 6 decimales. Si total_anomalies == 0, devolver 0.0
+
+Parámetros:
+- df: pandas.DataFrame
+- date_col: str
+- value_col: str
+- window: int (>= 2)
+- threshold: float (> 0)
+
+Salida:
+- dict con exactamente las 5 claves descritas arriba.
+
+Restricciones:
+- Usar solo pandas y numpy.
+- No usar librerías externas de detección de anomalías.
