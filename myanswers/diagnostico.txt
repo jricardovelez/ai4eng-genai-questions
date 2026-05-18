@@ -1,0 +1,57 @@
+Diagnóstico de errores en el verificador automático
+
+--- Pregunta 0461 ---
+
+Generador: https://raw.githubusercontent.com/isaacmgz/AI4ENG-GenAI-ISAAC/main/myquestions/question-0001-usecase-generator.py
+
+Al revisar por qué falla, me di cuenta de que el error no está en mi solución sino
+en el generador. El archivo del generador define dos funciones al nivel del módulo:
+
+    1. preparar_datos(df, target_col)        <- esta queda primera en el namespace
+    2. generar_caso_de_uso_preparar_datos()  <- esta queda segunda
+
+El verificador toma la primera función que encuentra y la llama sin argumentos:
+    gen_funcs[0]()  ->  preparar_datos()  ->  TypeError
+
+Por eso aparece como "usecase generator error" y nunca llega a probar mi respuesta.
+
+Probé mi solución localmente llamando directamente a generar_caso_de_uso_preparar_datos(),
+pasando sus kwargs a mi función, y el resultado fue correcto. Mi implementación separa
+el target, filtra columnas numéricas, imputa con SimpleImputer(strategy='mean') y
+escala con StandardScaler, que es exactamente lo que pide la pregunta.
+
+
+--- Pregunta 0525 ---
+
+Generador: https://raw.githubusercontent.com/ManuVMadrid/AI4ING-LLMPROJECT/main/myquestions/question-0001-usecase-generator.py
+
+Acá el problema está en el notebook verificador. El generador devuelve un pd.Series
+como valor esperado, pero la función compare_outputs del notebook no tiene un caso
+para manejar pd.Series:
+
+    def compare_outputs(expected, actual):
+        if isinstance(expected, pd.DataFrame): ...
+        elif isinstance(expected, np.ndarray): ...
+        elif isinstance(expected, dict): ...
+        elif isinstance(expected, (list, tuple)): ...
+        else:
+            if expected != actual:   # cuando expected es Series esto no retorna
+                                     # un bool sino otra Serie, y el notebook crashea
+
+El error que produce es:
+    ValueError: The truth value of a Series is ambiguous.
+
+Este crash además hace que la pregunta 0569 tampoco se verifique, porque el loop
+del notebook no tiene try-except alrededor de compare_outputs y se detiene ahí.
+
+Probé mi solución localmente con una versión corregida de compare_outputs que usa
+pd.testing.assert_series_equal, y el resultado fue PASS. La función hace el merge
+por 'sabor', filtra temperatura > 25, calcula ganancia_neta = unidades_vendidas *
+(precio_venta - costo_produccion), agrupa por sabor y ordena de mayor a menor.
+
+
+--- Pregunta 0569 ---
+
+No pudo ejecutarse en el verificador porque el crash de la pregunta 0525 detiene
+el notebook antes de llegar a ella. Probé la función localmente y el resultado
+fue correcto. seleccionar_columnas(df, columnas) devuelve df[list(columnas)].copy().
